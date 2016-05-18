@@ -1,10 +1,12 @@
-div {
+.row {
   height: 2em;
+  margin: 2px;
 }
 
-/*body {
-  box-sizing: border-box;
-}*/
+span {
+  height: 2em;
+  margin: 2px;
+}
 
 .critter {
   display: inline-block;
@@ -19,4 +21,8 @@ div {
 
 .dead {
   background: rgb(62, 46, 43);
+}
+
+button {
+  display: inline-block;
 }
