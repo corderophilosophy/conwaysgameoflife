@@ -19,7 +19,8 @@ function buildGrid(rows, cols) {
       grid += `data-critter=${i}${j} `;
       grid += "data-alive='false' ";
       grid += "data-livingneighbors='0' ";
-      grid += "data-next=' '></span>";
+      grid += "data-next=''>";
+      grid += "</span>";
     }
     grid += "</div>";
   }
@@ -86,3 +87,31 @@ const liveNeighbors = worldArray.forEach(function(current, index) {
 });
 
 liveNeighbors;
+
+// Stage life and death for next cycle
+function stageLifeDeath() {
+  worldArray.forEach(function(current, index) {
+    // Underpopulation deaths
+    if (World[index].dataset.alive === 'true' && World[index].dataset.livingneighbors < 2) {
+      World[index].dataset.next = "dead";
+    }
+    // Persistence
+    if (World[index].dataset.alive === 'true' && (World[index].dataset.livingneighbors == 2 || World[index].dataset.livingneighbors == 3)) {
+      World[index].dataset.next = "alive";
+    }
+    // Overpopulation deaths
+    if (World[index].dataset.alive === 'true' && World[index].dataset.livingneighbors > 3) {
+      World[index].dataset.next = "dead";
+    }
+    // Rebirth by reproduction
+    if (World[index].dataset.alive === 'false' && World[index].dataset.livingneighbors == 3) {
+      World[index].dataset.next = "alive";
+    }
+    // Persistent death
+    else {
+      World[index].dataset.next = "dead";
+    }
+  });
+}
+
+stageLifeDeath();
