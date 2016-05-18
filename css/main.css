@@ -1,8 +1,22 @@
-body {
-  box-sizing: border-box;
+div {
+  height: 2em;
 }
 
+/*body {
+  box-sizing: border-box;
+}*/
+
 .critter {
+  display: inline-block;
   height: 2em;
   width: 2em;
+  background: pink;
+}
+
+.living {
+  background: rgb(50, 144, 39);
+}
+
+.dead {
+  background: rgb(62, 46, 43);
 }
