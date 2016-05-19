@@ -9,10 +9,22 @@ function digitPad(number) {
   return digit;
 }
 
-// Helper fn to clear data-next
+// Helper fns to clear data-attrs
 function clearNext() {
+  worldArray.forEach(function(element) {
+    element.dataset.next = "";
+  });
+}
+
+
+function critterGenocide() {
   worldArray.forEach(function(element, index) {
-    World[index].dataset.next = "";
+    let critter = World[index];
+    critter.classList.remove('living');
+    critter.classList.add('dead');
+    critter.dataset.alive = 'false';
+    critter.dataset.next = '';
+    liveNeighbors();
   });
 }
 
@@ -23,7 +35,8 @@ function buildGrid(rows, cols) {
     grid += `<div class='row row-${i}'>`;
     for (let j = 0; j < cols; j += 1) {
       grid += "<span class='critter'";
-      grid += `data-critter=${i}${j} `;
+      grid += `data-critter-row='${i}' `;
+      grid += `data-critter-col='${j}' `;
       grid += "data-alive='false' ";
       grid += "data-livingneighbors=0 ";
       grid += "data-next=''>";
@@ -45,10 +58,10 @@ console.log(World.length);
 
 // Randomly populate world
 function populateWorld() {
-  worldArray.forEach(function(current, index) {
+  worldArray.forEach(function(current) {
     let i = Math.round(Math.random() * 10);
     if (i < 3) {
-      World[index].dataset.alive = 'true';
+      current.dataset.alive = 'true';
     }
   });
 }
@@ -56,15 +69,23 @@ function populateWorld() {
 
 // Give every item a class - living or dead
 function classifyLifeDeath() {
-  worldArray.forEach(function(current, index) {
-    if (World[index].dataset.alive === 'true') {
-      let idx = digitPad(index);
-      document.querySelector(`[data-critter="${idx}"]`)
-        .classList.add('living');
+  worldArray.forEach(function(current) {
+    if (current.dataset.alive === 'true') {
+      current.classList.add('living');
     } else {
-      let idx = digitPad(index);
-      document.querySelector(`[data-critter="${idx}"]`)
-        .classList.add('dead');
+      current.classList.add('dead');
+    }
+  });
+}
+
+function reclassify() {
+  worldArray.forEach(function(current) {
+    if (current.dataset.alive === 'true') {
+      current.classList.add('living');
+      current.classList.remove('dead');
+    } else {
+      current.classList.add('dead');
+      current.classList.remove('living');
     }
   });
 }
@@ -72,7 +93,7 @@ function classifyLifeDeath() {
 function liveNeighbors() {
   worldArray.forEach(function(current, index) {
     let neighbors = 0;
-    World[index].dataset.livingneighbors = '0';
+    current.dataset.livingneighbors = '0';
     if ((!!World[index + 1]) && World[index + 1].dataset.alive === 'true') {
       neighbors += 1;
     }
@@ -152,11 +173,22 @@ function iterate() {
   stageLifeDeath();
 }
 
-const btn = document.querySelector('[data-action="iterator"]');
+const itr = document.querySelector('[data-action="iterator"]');
 
-btn.addEventListener('click', function(evt) {
+itr.addEventListener('click', function(evt) {
   evt.preventDefault();
   iterate();
+});
+
+const repopulate = document.querySelector('[data-action="repopulate"]');
+
+repopulate.addEventListener('click', function(evt) {
+  evt.preventDefault();
+  critterGenocide();
+  populateWorld();
+  reclassify();
+  liveNeighbors();
+  stageLifeDeath();
 });
 
 
@@ -164,3 +196,32 @@ populateWorld();
 classifyLifeDeath();
 liveNeighbors();
 stageLifeDeath();
+
+
+// function testForEach() {
+//   worldArray.forEach(function(current) {
+//     if (current.dataset.critter == "45") {
+//       current.style.background = "blue";
+//     }
+//   });
+// }
+// testForEach();
+
+// worldArray[value].dataset.critter.slice(0, 1);
+// worldArray[value].dataset.critter.slice(1);
+
+function testNeighbors() {
+  worldArray.forEach(function(current, index) {
+    if (current === World[45]) {
+      const i = String(index)
+        .slice(0, 1);
+      const j = String(index)
+        .slice(1);
+      if ((World[index + 1].dataset.critterRow == Number(i)) && (World[index + 1].dataset.critterCol == (Number(j) + 1))) {
+        World[index + 1].style.background = "cyan";
+      }
+    }
+  });
+}
+
+testNeighbors();

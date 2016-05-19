@@ -13,10 +13,21 @@ function digitPad(number) {
   return digit;
 }
 
-// Helper fn to clear data-next
+// Helper fns to clear data-attrs
 function clearNext() {
+  worldArray.forEach(function (element) {
+    element.dataset.next = "";
+  });
+}
+
+function critterGenocide() {
   worldArray.forEach(function (element, index) {
-    World[index].dataset.next = "";
+    var critter = World[index];
+    critter.classList.remove('living');
+    critter.classList.add('dead');
+    critter.dataset.alive = 'false';
+    critter.dataset.next = '';
+    liveNeighbors();
   });
 }
 
@@ -27,7 +38,8 @@ function buildGrid(rows, cols) {
     grid += "<div class='row row-" + i + "'>";
     for (var j = 0; j < cols; j += 1) {
       grid += "<span class='critter'";
-      grid += "data-critter=" + i + j + " ";
+      grid += "data-critter-row='" + i + "' ";
+      grid += "data-critter-col='" + j + "' ";
       grid += "data-alive='false' ";
       grid += "data-livingneighbors=0 ";
       grid += "data-next=''>";
@@ -49,33 +61,33 @@ console.log(World.length);
 
 // Randomly populate world
 function populateWorld() {
-  worldArray.forEach(function (current, index) {
+  worldArray.forEach(function (current) {
     var i = Math.round(Math.random() * 10);
     if (i < 3) {
-      World[index].dataset.alive = 'true';
+      current.dataset.alive = 'true';
     }
   });
 }
 
-// // Populate World
-// function populateWorld() {
-//   World[43].dataset.alive = 'true';
-//   World[44].dataset.alive = 'true';
-//   World[45].dataset.alive = 'true';
-//   World[32].dataset.alive = 'true';
-//   World[33].dataset.alive = 'true';
-//   World[34].dataset.alive = 'true';
-// }
-
 // Give every item a class - living or dead
 function classifyLifeDeath() {
-  worldArray.forEach(function (current, index) {
-    if (World[index].dataset.alive === 'true') {
-      var idx = digitPad(index);
-      document.querySelector("[data-critter=\"" + idx + "\"]").classList.add('living');
+  worldArray.forEach(function (current) {
+    if (current.dataset.alive === 'true') {
+      current.classList.add('living');
     } else {
-      var _idx = digitPad(index);
-      document.querySelector("[data-critter=\"" + _idx + "\"]").classList.add('dead');
+      current.classList.add('dead');
+    }
+  });
+}
+
+function reclassify() {
+  worldArray.forEach(function (current) {
+    if (current.dataset.alive === 'true') {
+      current.classList.add('living');
+      current.classList.remove('dead');
+    } else {
+      current.classList.add('dead');
+      current.classList.remove('living');
     }
   });
 }
@@ -83,7 +95,7 @@ function classifyLifeDeath() {
 function liveNeighbors() {
   worldArray.forEach(function (current, index) {
     var neighbors = 0;
-    World[index].dataset.livingneighbors = '0';
+    current.dataset.livingneighbors = '0';
     if (!!World[index + 1] && World[index + 1].dataset.alive === 'true') {
       neighbors += 1;
     }
@@ -148,9 +160,9 @@ function iterate() {
       World[index].dataset.alive = 'true';
     }
     if (World[index].dataset.next === "dead") {
-      var _idx2 = digitPad(index);
-      document.querySelector("[data-critter=\"" + _idx2 + "\"]").classList.add('dead');
-      document.querySelector("[data-critter=\"" + _idx2 + "\"]").classList.remove('living');
+      var _idx = digitPad(index);
+      document.querySelector("[data-critter=\"" + _idx + "\"]").classList.add('dead');
+      document.querySelector("[data-critter=\"" + _idx + "\"]").classList.remove('living');
       World[index].dataset.alive = 'false';
     }
   });
@@ -159,14 +171,51 @@ function iterate() {
   stageLifeDeath();
 }
 
-var btn = document.querySelector('[data-action="iterator"]');
+var itr = document.querySelector('[data-action="iterator"]');
 
-btn.addEventListener('click', function (evt) {
+itr.addEventListener('click', function (evt) {
   evt.preventDefault();
   iterate();
+});
+
+var repopulate = document.querySelector('[data-action="repopulate"]');
+
+repopulate.addEventListener('click', function (evt) {
+  evt.preventDefault();
+  critterGenocide();
+  populateWorld();
+  reclassify();
+  liveNeighbors();
+  stageLifeDeath();
 });
 
 populateWorld();
 classifyLifeDeath();
 liveNeighbors();
 stageLifeDeath();
+
+// function testForEach() {
+//   worldArray.forEach(function(current) {
+//     if (current.dataset.critter == "45") {
+//       current.style.background = "blue";
+//     }
+//   });
+// }
+// testForEach();
+
+// worldArray[value].dataset.critter.slice(0, 1);
+// worldArray[value].dataset.critter.slice(1);
+
+function testNeighbors() {
+  worldArray.forEach(function (current, index) {
+    if (current === World[45]) {
+      var i = String(index).slice(0, 1);
+      var j = String(index).slice(1);
+      if (World[index + 1].dataset.critterRow == Number(i) && World[index + 1].dataset.critterCol == Number(j) + 1) {
+        World[index + 1].style.background = "cyan";
+      }
+    }
+  });
+}
+
+testNeighbors();
